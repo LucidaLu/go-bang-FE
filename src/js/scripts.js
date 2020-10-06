@@ -58,18 +58,7 @@ function Main() {
 
     ctx.save();
 
-    if (resultShow) {
-        ctx.save();
-        if (resultFadeOut != undefined) {
-            ctx.globalAlpha = 1 - resultFadeOut.Progress();
-            //console.log(resultFadeOut.Progress());
-        }
-        ctx.shadowColor = winner == 2 ? '#000000' : (winner == selfColor ? '#00FF00' : '#FF0000');
-        ctx.shadowBlur = 10;
-        ctx.font = '800px wzm';
-        ctx.fillText(winner == selfColor ? '胜' : (winner == 2 ? '平' : '败'), 150, 850);
-        ctx.restore();
-    }
+
 
     let W2 = (s) => { while (s.length < 2) s = '0' + s; return s; };
     let strength = Math.floor(score / 100 * 255);
@@ -170,6 +159,19 @@ function Main() {
         for (let o of opos)
             if (o.solid)
                 OPaint(0.14, o);
+
+    if (resultShow) {
+        ctx.save();
+        if (resultFadeOut != undefined) {
+            ctx.globalAlpha = 1 - resultFadeOut.Progress();
+            //console.log(resultFadeOut.Progress());
+        }
+        ctx.shadowColor = winner == 2 ? '#000000' : (winner == selfColor ? '#00FF00' : '#FF0000');
+        ctx.shadowBlur = 10;
+        ctx.font = '800px wzm';
+        ctx.fillText(winner == selfColor ? '胜' : (winner == 2 ? '平' : '败'), 150, 850);
+        ctx.restore();
+    }
     ctx.restore();
 
     requestAnimationFrame(Main);
@@ -286,7 +288,7 @@ function AskServer(hint = false) {
         url: serverURL + '/server',
         method: 'POST',
         dataType: 'json',
-        data: { json: JSON.stringify({ board: col, person: hint ^ selfColor, machine: hint ^ selfColor ^ 1, ratio: parseInt($("#ad-slider").val()) / 100, difficulty: parseInt($("#diff-slider").val()) * 2 }) },
+        data: { json: JSON.stringify({ board: col, person: hint ^ selfColor, machine: hint ^ selfColor ^ 1, ratio: parseInt($("#ad-slider").val()) / 100, difficulty: hint ? 10 : parseInt($("#diff-slider").val()) * 2 }) },
         success: (resp) => {
             $('#thinking').css("visibility", "hidden");
             if (hint) {
