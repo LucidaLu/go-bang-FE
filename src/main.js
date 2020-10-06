@@ -17,10 +17,10 @@ function createWindow() {
             nodeIntegration: true
         },
         frame: false,
-        //    resizable: false
+        resizable: false
     })
     mainWindow.loadURL(`file://${__dirname}/index.html`);
-    mainWindow.webContents.openDevTools()
+    //mainWindow.webContents.openDevTools()
     ipcMain.on('close', e => mainWindow.close());
 }
 
