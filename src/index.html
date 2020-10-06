@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Alpha5</title>
+
+    <meta name="description" content="Source code generated using layoutit.com">
+    <meta name="author" content="LayoutIt!">
+
+    <link rel="stylesheet"
+        href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css"
+        integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="default-cursor">
+    <audio id="sound-player"></audio>
+    <audio id="ting-player"></audio>
+    <div class="container-fluid" style="padding:30px" width="1280" height="720">
+        <div class="row">
+            <div class="col-3">
+                <h2 class="non-select">
+                    电脑玩家
+                    <span id="thinking" style="visibility: hidden;"></span>
+                </h2>
+                <span class="non-select"> 棋局评分 </span>
+                <h2 id="match-score" class="non-select">
+                    0
+                </h2>
+                <span class="non-select"> 攻防系数 </span>
+                <input type="range" min="0" max="100" value="50" class="slider" id="ad-slider">
+                <span class="non-select"> 难度系数 </span>
+                <input type="range" min="1" max="5" value="5" class="slider" id="diff-slider">
+                <div class="btn-group" role="group" style="position:fixed;left:130px;top:250px; ">
+                    <button class="btn btn-lg" type="button" id="btn-start" style="font-size:30px">开始</button>
+                    <button class="btn btn-lg" type="button" id="btn-close" style="font-size:30px">退出</button>
+                </div>
+            </div>
+            <div class="col-6">
+                <canvas id="board" width="1200" height="1200"
+                    style="margin-top:30px;width:600px;height:600px;border:1px solid #000000;">
+                </canvas>
+            </div>
+            <div class="col-3">
+                <div class="switch-box" style="position:fixed;right:230px;bottom:53px;">
+                    <input class="switch-input" type="checkbox" id="switch-input">
+                    <label class="switch-label" for="switch-input"></label>
+                    <span class="switch-txt" data-close-txt="黑棋" data-open-txt="白棋"
+                        style="position:fixed;right:235px;bottom:60px;font-size:10px"></span>
+                </div>
+                <div class="btn-group" role="group" style="position:fixed;right:80px;bottom:30px;">
+                    <button class="btn btn-lg" type="button" id="retreat-move">悔棋</button> <button class="btn btn-lg "
+                        type="button" id="restart-match">重来</button>
+                </div>
+                <h2 style="position:fixed;right:30px;bottom:45px">
+                    你
+                </h2>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        var ipc = require('electron').ipcRenderer;
+        window.nodeRequire = require;
+        delete window.require;
+        delete window.exports;
+        delete window.module;
+    </script>
+    <script src='js/jquery.min.js'></script>
+    <script src="js/scripts.js"></script>
+</body>
+
+</html>
