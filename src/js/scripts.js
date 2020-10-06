@@ -64,7 +64,7 @@ function Main() {
             ctx.globalAlpha = 1 - resultFadeOut.Progress();
             //console.log(resultFadeOut.Progress());
         }
-        ctx.shadowColor = '#000000';
+        ctx.shadowColor = winner == 2 ? '#000000' : (winner == selfColor ? '#00FF00' : '#FF0000');
         ctx.shadowBlur = 10;
         ctx.font = '800px wzm';
         ctx.fillText(winner == selfColor ? '胜' : (winner == 2 ? '平' : '败'), 150, 850);
@@ -72,7 +72,8 @@ function Main() {
     }
 
     let W2 = (s) => { while (s.length < 2) s = '0' + s; return s; };
-    ctx.shadowColor = '#' + (score < 0 ? W2((-score).toString(16)) + '00' : '00' + W2((score).toString(16))) + '00';
+    let strength = Math.floor(score / 100 * 255);
+    ctx.shadowColor = '#' + (strength < 0 ? W2((-strength).toString(16)) + '00' : '00' + W2((strength).toString(16))) + '00';
     //console.log('#' + (score < 0 ? W2((-score).toString(16)) + '00' : '00' + W2((score).toString(16))) + '00');
     ctx.shadowBlur = 10;
     //console.log(ctx.shadowColor, ctx.shadowBlur);
