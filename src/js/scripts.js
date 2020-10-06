@@ -38,7 +38,7 @@ let opos = [], ofig = [Load("b2.png"), Load("w2.png")],
     gameOverShade,
     score = 0,
     selfColor = 0,
-    osequence = [], begun = false, opWinLocs = undefined;
+    osequence = [], begun = false, opWinLocs = undefined, hintMove = undefined;
 
 function OPaint(s, o) {
     //console.log(s, o);
@@ -106,11 +106,22 @@ function Main() {
 
     const DROP_ANIMATION_SPEED = 0.2;
     for (let o of opos)
-        if (o.color != -1) {
+        if (o.color != -1 || o.hintBlink != undefined) {
             if (o.dropAnimationGoal != undefined) {
                 o.x += (o.dropAnimationGoal.x - o.x) * DROP_ANIMATION_SPEED;
             }
+            if (o.hintBlink != undefined) {
+                ctx.save();
+                let p = o.hintBlink.Progress();
+                p = p * 5 - Math.floor(p * 5);
+                ctx.globalAlpha = p < 0.5 ? p / 0.5 : (1 - p) / 0.5;
+                o.color = selfColor;
+            }
             OPaint((o.scaleAnimation == undefined ? 0 : 1 - o.scaleAnimation.Progress()) * 0.06 + 0.14, o)
+            if (o.hintBlink != undefined) {
+                o.color = -1;
+                ctx.restore();
+            }
         }
 
     if (movingOPos != undefined && mousePos != undefined) {
@@ -193,11 +204,13 @@ let firstGame = true;
 function BlockButtons() {
     $("#restart-match").attr("disabled", "true");
     $('#retreat-move').attr("disabled", "true");
+    $('#btn-hint').attr("disabled", "true");
 }
 
 function UnblockButtons() {
     $("#restart-match").removeAttr("disabled");
     $('#retreat-move').removeAttr("disabled");
+    $('#btn-hint').removeAttr("disabled");
 }
 
 
@@ -244,7 +257,7 @@ function RefreshThinkingDots() {
     $('#thinking').html(s);
 };
 
-function AskServer() {
+function AskServer(hint = false) {
     let col = [];
     for (let o of opos)
         col.push(o.color);
@@ -256,29 +269,34 @@ function AskServer() {
         url: serverURL + '/server',
         method: 'POST',
         dataType: 'json',
-        data: { json: JSON.stringify({ board: col, person: selfColor, machine: selfColor ^ 1, ratio: parseInt($("#ad-slider").val()) / 100, difficulty: parseInt($("#diff-slider").val()) * 2 }) },
+        data: { json: JSON.stringify({ board: col, person: hint ^ selfColor, machine: hint ^ selfColor ^ 1, ratio: parseInt($("#ad-slider").val()) / 100, difficulty: parseInt($("#diff-slider").val()) * 2 }) },
         success: (resp) => {
             $('#thinking').css("visibility", "hidden");
-            if (resp.result == "win")
-                GameOver(resp.loc, selfColor);
-            else if (resp.result == "tie" && resp.position == undefined)
-                GameOver([], 2);
-            choicePos = opos[resp.position[0] * 15 + resp.position[1]];
-            //console.log(resp.position[0] * 15 + resp.position[1]);
-            score = resp.score;
-            setInterval(() => {
-                let x = parseInt(scoreBanner.innerHTML);
-                if (x == score)
-                    clearInterval();
-                else
-                    scoreBanner.innerHTML = x + (x < score ? 1 : -1);
-            }, 10);
-            osequence.push(choicePos);
-            movingAdv = { x: 0, y: 0 };
-            if (resp.result == "lose")
-                opWinLocs = resp.loc;
-            else if (resp.result == "tie")
-                GameOver([], 2);
+            if (hint) {
+                hintMove = opos[resp.position[0] * 15 + resp.position[1]];
+                hintMove.hintBlink = new Animation(10000, () => { });
+            } else {
+                if (resp.result == "win")
+                    GameOver(resp.loc, selfColor);
+                else if (resp.result == "tie" && resp.position == undefined)
+                    GameOver([], 2);
+                choicePos = opos[resp.position[0] * 15 + resp.position[1]];
+                //console.log(resp.position[0] * 15 + resp.position[1]);
+                score = resp.score;
+                setInterval(() => {
+                    let x = parseInt(scoreBanner.innerHTML);
+                    if (x == score)
+                        clearInterval();
+                    else
+                        scoreBanner.innerHTML = x + (x < score ? 1 : -1);
+                }, 10);
+                osequence.push(choicePos);
+                movingAdv = { x: 0, y: 0 };
+                if (resp.result == "lose")
+                    opWinLocs = resp.loc;
+                else if (resp.result == "tie")
+                    GameOver([], 2);
+            }
         },
         error: (resp) => {
             console.log('error', resp);
@@ -306,11 +324,14 @@ window.onload = function () {
         };
         c.onmousedown = function (event) {
             if (focusPos != undefined) {
+                if (hintMove != undefined) {
+                    hintMove.hintBlink = undefined;
+                    hintMove = undefined;
+                }
                 BlockButtons();
                 choicePos = focusPos;
                 osequence.push(choicePos);
                 choicePos.color = selfColor;
-
                 choicePos.scaleAnimation = new Animation(50, () => {
                     choicePos.scaleAnimation = undefined;
                     soundPlayer.play();
@@ -352,11 +373,15 @@ window.onload = function () {
         $('#btn-close').click(() => {
             ipc.send('close');
         });
+        $('#btn-hint').click(() => {
+            AskServer(true);
+        });
 
         setInterval(() => {
             thinkingDotCount = (thinkingDotCount + 1) % 5;
             RefreshThinkingDots();
         }, 500);
+        BlockButtons();
         Main();
     });
 };
