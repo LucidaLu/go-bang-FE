@@ -116,6 +116,8 @@ function Main() {
                 p = p * 5 - Math.floor(p * 5);
                 ctx.globalAlpha = p < 0.5 ? p / 0.5 : (1 - p) / 0.5;
                 o.color = selfColor;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#FF0000'
             }
             OPaint((o.scaleAnimation == undefined ? 0 : 1 - o.scaleAnimation.Progress()) * 0.06 + 0.14, o)
             if (o.hintBlink != undefined) {
@@ -216,6 +218,18 @@ function UnblockButtons() {
 
 
 const DROP_O_TOUT = 2000;
+
+function ScoreChange(newScore) {
+    score = newScore;
+    setInterval(() => {
+        let x = parseInt(scoreBanner.innerHTML);
+        if (x == score)
+            clearInterval();
+        else
+            scoreBanner.innerHTML = x + (x < score ? 1 : -1);
+    }, 10);
+}
+
 function Init() {
     for (let o of opos)
         if (o.color != -1) {
@@ -235,6 +249,8 @@ function Init() {
         begun = false;
         $('#switch-input').removeAttr("disabled");
         $('#btn-start').removeAttr("disabled");
+        BlockButtons();
+        ScoreChange(0);
         opos = [];
         osequence = [];
         for (let i = 0; i < BOARD_WID; ++i)
@@ -274,7 +290,7 @@ function AskServer(hint = false) {
             $('#thinking').css("visibility", "hidden");
             if (hint) {
                 hintMove = opos[resp.position[0] * 15 + resp.position[1]];
-                hintMove.hintBlink = new Animation(10000, () => { });
+                hintMove.hintBlink = new Animation(10000, () => { hintMove = undefined; });
             } else {
                 if (resp.result == "win")
                     GameOver(resp.loc, selfColor);
@@ -282,14 +298,7 @@ function AskServer(hint = false) {
                     GameOver([], 2);
                 choicePos = opos[resp.position[0] * 15 + resp.position[1]];
                 //console.log(resp.position[0] * 15 + resp.position[1]);
-                score = resp.score;
-                setInterval(() => {
-                    let x = parseInt(scoreBanner.innerHTML);
-                    if (x == score)
-                        clearInterval();
-                    else
-                        scoreBanner.innerHTML = x + (x < score ? 1 : -1);
-                }, 10);
+                ScoreChange(resp.score);
                 osequence.push(choicePos);
                 movingAdv = { x: 0, y: 0 };
                 if (resp.result == "lose")
@@ -362,6 +371,7 @@ window.onload = function () {
         $('#btn-start').click(() => {
             $('#btn-start').attr("disabled", "true");
             $('#switch-input').attr("disabled", "true");
+            $('#btn-hint').removeAttr("disabled");
             begun = false;
             if (selfColor == 0)
                 PlayBegin();
@@ -374,7 +384,9 @@ window.onload = function () {
             ipc.send('close');
         });
         $('#btn-hint').click(() => {
-            AskServer(true);
+            if (hintMove == undefined)
+                AskServer(true);
+            $('#btn-hint').attr("disabled", "true");
         });
 
         setInterval(() => {
