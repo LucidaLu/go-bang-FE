@@ -145,7 +145,7 @@ function Main() {
 
     if (gameOverShade != undefined) {
         let p = gameOverShade.Progress();
-        ctx.fillStyle = 'rgba(255,255,255,' + (p < 0.1 ? (p / 0.1) : 1 - (p - 0.1) / 0.9).toString() + ')';
+        ctx.fillStyle = 'rgba(255,255,255,' + (p < 0.1 ? (p / 0.1) : (p < 0.5 ? 1 : 1 - (p - 0.5) / 0.5)).toString() + ')';
         ctx.fillRect(0, 0, c.width, c.height);
         if (p > 0.1) {
             resultShow = true;
@@ -166,9 +166,15 @@ function Main() {
             ctx.globalAlpha = 1 - resultFadeOut.Progress();
             //console.log(resultFadeOut.Progress());
         }
+        if (gameOverShade != undefined) {
+            let p = gameOverShade.Progress();
+            ctx.globalAlpha = p < 0.5 ? 0 : (p - 0.5) / 0.5;
+
+        }
         ctx.shadowColor = winner == 2 ? '#000000' : (winner == selfColor ? '#00FF00' : '#FF0000');
         ctx.shadowBlur = 10;
         ctx.font = '800px wzm';
+        ctx.fillStyle = '#FFFFFF';
         ctx.fillText(winner == selfColor ? '胜' : (winner == 2 ? '平' : '败'), 150, 850);
         ctx.restore();
     }
@@ -197,7 +203,7 @@ function GameOver(s, wh) {
     for (let o of seq)
         o.solid = true;
     winner = wh;
-    gameOverShade = new Animation(5000,
+    gameOverShade = new Animation(3000,
         () => {
             gameOverShade = undefined;
         }
@@ -311,7 +317,7 @@ function AskServer(hint = false) {
             }
         },
         error: (resp) => {
-            console.log('error', resp);
+            alert('网络连接失败');
         }
     })
 }
