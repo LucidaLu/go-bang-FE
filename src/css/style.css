@@ -86,6 +86,6 @@
 
 
 .default-cursor {
-    cursor: url('../cursor.cur'), pointer;
+    cursor: url('../cursor.png'), pointer;
     /* cursor: url('http://i.imgur.com/jaYSPxo.png'), auto; */
 }
