@@ -101,7 +101,7 @@ function Main() {
                 o.x += (o.dropAnimationGoal.x - o.x) * DROP_ANIMATION_SPEED;
             }
             hintBlink = false;
-            if (o.hintBlink != undefined) {
+            if (o.color == -1 && o.hintBlink != undefined) {
                 ctx.save();
                 hintBlink = true;
                 let p = o.hintBlink.Progress();
@@ -284,11 +284,13 @@ function RefreshThinkingDots() {
     $('#thinking').html(s);
 };
 
+let askingForHint = false;
 function AskServer(hint = false) {
     let col = [];
     for (let o of opos)
         col.push(o.color);
     thinkingDotCount = 0;
+    askingForHint = hint;
     RefreshThinkingDots();
     $('#thinking').css("visibility", "visible");
     $.ajax({
@@ -346,7 +348,7 @@ window.onload = function () {
             }
         };
         c.onmousedown = function (event) {
-            if (focusPos != undefined) {
+            if (!askingForHint && focusPos != undefined) {
                 if (hintMove != undefined) {
                     hintMove.hintBlink = undefined;
                     hintMove = undefined;
