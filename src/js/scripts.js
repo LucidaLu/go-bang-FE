@@ -100,8 +100,10 @@ function Main() {
             if (o.dropAnimationGoal != undefined) {
                 o.x += (o.dropAnimationGoal.x - o.x) * DROP_ANIMATION_SPEED;
             }
+            hintBlink = false;
             if (o.hintBlink != undefined) {
                 ctx.save();
+                hintBlink = true;
                 let p = o.hintBlink.Progress();
                 p = p * 5 - Math.floor(p * 5);
                 ctx.globalAlpha = p < 0.5 ? p / 0.5 : (1 - p) / 0.5;
@@ -110,7 +112,7 @@ function Main() {
                 ctx.shadowColor = '#FF0000'
             }
             OPaint((o.scaleAnimation == undefined ? 0 : 1 - o.scaleAnimation.Progress()) * 0.06 + 0.14, o)
-            if (o.hintBlink != undefined) {
+            if (hintBlink) {
                 o.color = -1;
                 ctx.restore();
             }
@@ -299,7 +301,10 @@ function AskServer(hint = false) {
             $('#thinking').css("visibility", "hidden");
             if (hint) {
                 hintMove = opos[resp.position[0] * 15 + resp.position[1]];
-                hintMove.hintBlink = new Animation(10000, () => { hintMove = undefined; });
+                hintMove.hintBlink = new Animation(10000, () => {
+                    hintMove.hintBlink = undefined;
+                    hintMove = undefined;
+                });
             } else {
                 if (resp.result == "win")
                     GameOver(resp.loc, selfColor);
