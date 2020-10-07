@@ -307,6 +307,7 @@ function AskServer(hint = false) {
                     hintMove.hintBlink = undefined;
                     hintMove = undefined;
                 });
+                askingForHint = false;
             } else {
                 if (resp.result == "win")
                     GameOver(resp.loc, selfColor);
