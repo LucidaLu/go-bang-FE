@@ -38,7 +38,7 @@ let opos = [], ofig = [Load("b2.png"), Load("w2.png")],
     gameOverShade,
     score = 0,
     selfColor = 0,
-    osequence = [], begun = false, opWinLocs = undefined, hintMove = undefined;
+    osequence = [], begun = false, opWinLocs = undefined, hintMove = undefined, resultFadeOut = undefined;
 
 function OPaint(s, o) {
     //console.log(s, o);
@@ -100,7 +100,7 @@ function Main() {
             if (o.dropAnimationGoal != undefined) {
                 o.x += (o.dropAnimationGoal.x - o.x) * DROP_ANIMATION_SPEED;
             }
-            hintBlink = false;
+            let hintBlink = false;
             if (o.color == -1 && o.hintBlink != undefined) {
                 ctx.save();
                 hintBlink = true;
