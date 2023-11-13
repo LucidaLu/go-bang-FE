@@ -46,7 +46,20 @@ function OPaint(s, o) {
   ctx.save();
   ctx.translate(o.x, o.y);
   ctx.scale(s, s);
-  ctx.drawImage(ofig[o.color], -O_CENTER_POS, -O_CENTER_POS);
+
+  ctx.beginPath();
+
+  const RADIUS = 200, GRAD_RATIO = 0.8;
+  ctx.arc(0, 0, RADIUS, 0, 2 * Math.PI);
+  let g = ctx.createRadialGradient(0, 0, RADIUS, 0, 0, RADIUS * GRAD_RATIO);
+
+  let color = (255 - 50) * 0.5;
+  g.addColorStop(0, `rgb(${color - 50},${color - 50},${color - 50})`);
+  g.addColorStop(1, `rgb(${color},${color},${color})`);
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.closePath();
+
   ctx.restore();
 }
 
@@ -57,8 +70,6 @@ function Main() {
   ctx.lineWidth = 0.5;
 
   ctx.save();
-
-
 
   let W2 = (s) => { while (s.length < 2) s = '0' + s; return s; };
   let strength = Math.floor(score / 100 * 255);
@@ -93,6 +104,7 @@ function Main() {
   DrawDot(11, 3);
   ctx.shadowBlur = 7;
   ctx.shadowColor = '#000000'
+
 
   const DROP_ANIMATION_SPEED = 0.2;
   for (let o of opos)
@@ -289,44 +301,70 @@ function AskServer(hint = false) {
   askingForHint = hint;
   RefreshThinkingDots();
   $('#thinking').css("visibility", "visible");
-  $.ajax({
-    async: true,
-    url: serverURL + '/server',
-    method: 'POST',
-    dataType: 'json',
-    data: { json: JSON.stringify({ board: col, person: hint ^ selfColor, machine: hint ^ selfColor ^ 1, ratio: parseInt($("#ad-slider").val()) / 100, difficulty: hint ? 10 : parseInt($("#diff-slider").val()) * 2 }) },
-    success: (resp) => {
-      $('#thinking').css("visibility", "hidden");
-      if (hint) {
-        hintMove = opos[resp.position[0] * 15 + resp.position[1]];
-        hintMove.hintBlink = new Animation(10000, () => {
-          hintMove.hintBlink = undefined;
-          hintMove = undefined;
-        });
-        askingForHint = false;
-      } else {
-        if (resp.result == "win")
-          GameOver(resp.loc, selfColor);
-        else if (resp.result == "tie" && resp.position == undefined)
-          GameOver([], 2);
-        choicePos = opos[resp.position[0] * 15 + resp.position[1]];
-        //console.log(resp.position[0] * 15 + resp.position[1]);
-        ScoreChange(resp.score);
-        osequence.push({ p: choicePos, s: resp.score });
-        movingAdv = { x: 0, y: 0 };
-        if (resp.result == "lose")
-          opWinLocs = resp.loc;
-        else if (resp.result == "tie")
-          GameOver([], 2);
-      }
-    },
-    error: (resp) => {
-      alert('网络连接失败');
-    }
-  })
+  // $.ajax({
+  //   async: true,
+  //   url: serverURL + '/server',
+  //   method: 'POST',
+  //   dataType: 'json',
+  //   data: { json: JSON.stringify({ board: col, person: hint ^ selfColor, machine: hint ^ selfColor ^ 1, ratio: parseInt($("#ad-slider").val()) / 100, difficulty: hint ? 10 : parseInt($("#diff-slider").val()) * 2 }) },
+  //   success: (resp) => {
+  //     $('#thinking').css("visibility", "hidden");
+  //     if (hint) {
+  //       hintMove = opos[resp.position[0] * 15 + resp.position[1]];
+  //       hintMove.hintBlink = new Animation(10000, () => {
+  //         hintMove.hintBlink = undefined;
+  //         hintMove = undefined;
+  //       });
+  //       askingForHint = false;
+  //     } else {
+  //       if (resp.result == "win")
+  //         GameOver(resp.loc, selfColor);
+  //       else if (resp.result == "tie" && resp.position == undefined)
+  //         GameOver([], 2);
+  //       choicePos = opos[resp.position[0] * 15 + resp.position[1]];
+  //       //console.log(resp.position[0] * 15 + resp.position[1]);
+  //       ScoreChange(resp.score);
+  //       osequence.push({ p: choicePos, s: resp.score });
+  //       movingAdv = { x: 0, y: 0 };
+  //       if (resp.result == "lose")
+  //         opWinLocs = resp.loc;
+  //       else if (resp.result == "tie")
+  //         GameOver([], 2);
+  //     }
+  //   },
+  //   error: (resp) => {
+  //     alert('网络连接失败');
+  //   }
+  // })
+  $('#thinking').css("visibility", "hidden");
+
+  let resp = {};
+  resp.position = [Math.floor(Math.random() * 15), Math.floor(Math.random() * 15)];
+  if (hint) {
+    hintMove = opos[resp.position[0] * 15 + resp.position[1]];
+    hintMove.hintBlink = new Animation(10000, () => {
+      hintMove.hintBlink = undefined;
+      hintMove = undefined;
+    });
+    askingForHint = false;
+  } else {
+    if (resp.result == "win")
+      GameOver(resp.loc, selfColor);
+    else if (resp.result == "tie" && resp.position == undefined)
+      GameOver([], 2);
+    choicePos = opos[resp.position[0] * 15 + resp.position[1]];
+    //console.log(resp.position[0] * 15 + resp.position[1]);
+    ScoreChange(resp.score);
+    osequence.push({ p: choicePos, s: resp.score });
+    movingAdv = { x: 0, y: 0 };
+    if (resp.result == "lose")
+      opWinLocs = resp.loc;
+    else if (resp.result == "tie")
+      GameOver([], 2);
+  }
 }
 
-const wzmFont = new FontFace('wzm', 'url(https://storage.lucida.site/43823586ec4dc3b059f7/SentyWEN.ttf)');
+const wzmFont = new FontFace('wzm', 'url(./SentyWEN2017.ttf)');
 window.onload = function () {
   wzmFont.load().then(font => {
     document.fonts.add(font)

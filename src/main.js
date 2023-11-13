@@ -12,7 +12,7 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
-    maximizable: false,
+    maximizable: true,
     webPreferences: {
       nodeIntegration: true
     },
@@ -20,7 +20,8 @@ function createWindow() {
     resizable: false
   })
   mainWindow.loadURL(`file://${__dirname}/index.html`);
-  //mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
+  mainWindow.maximize();
   ipcMain.on('close', e => mainWindow.close());
 }
 
