@@ -22,7 +22,7 @@
   <audio id="ting-player"></audio>
   <div class="container-fluid" style="padding:30px" width="1280" height="720">
     <div class="row">
-      <div class="col-3">
+      <!-- <div class="col-3">
         <h2 class="non-select">
           电脑玩家
           <span id="thinking" style="visibility: hidden;"></span>
@@ -40,13 +40,29 @@
           <button class="btn btn-lg" type="button" id="btn-close" style="font-size:30px">退出</button>
           <button class="btn btn-lg" type="button" id="btn-hint" style="font-size:30px">提示</button>
         </div>
-      </div>
+      </div> -->
       <div class="col-6">
         <canvas id="board" width="1200" height="1200"
           style="margin-top:30px;width:600px;height:600px;border:1px solid #000000;">
         </canvas>
       </div>
-      <div class="col-3">
+      <div class="col-6">
+        <div id="angle-lim"></div>
+        <div id="bars">
+          <div id="bars-wrapper">
+            <table>
+              <tbody id="bars-body">
+
+              </tbody>
+            </table>
+            <div style="text-align: right; visibility: hidden;padding-top: 20px;" id="submit-btn-wrapper">
+              <button id="submit-btn" class="btn btn-outline-dark" onclick="Submit()">Submit</button>
+              <div id="loading-anim" style="display:none" class="lds-dual-ring"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="col-3">
         <div class="switch-box" style="position:fixed;right:230px;bottom:53px;">
           <input class="switch-input" type="checkbox" id="switch-input">
           <label class="switch-label" for="switch-input"></label>
@@ -60,7 +76,7 @@
         <h2 style="position:fixed;right:30px;bottom:45px">
           你
         </h2>
-      </div>
+      </div> -->
     </div>
   </div>
   <script>
